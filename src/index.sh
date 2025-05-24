@@ -344,6 +344,8 @@ if [[ -z "${RULES_LIST_ID}" ]]; then
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rules/lists -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_LIST_CREATE}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists failed."
+        echo "DEBUG:"
+        echo "${RESPONSE}"
         exit 1
     fi
     RULES_LIST_ID="$(jq -r '.result[] | .id' <<<"${RESPONSE}")"
