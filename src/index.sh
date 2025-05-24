@@ -380,18 +380,16 @@ if ! jq -e ".success" <<<"${API_LIST_RULESETS_ACCOUNT}" >/dev/null 2>&1; then
 fi
 RULESET_ID="$(jq -r '.result[] | select(.phase == "http_request_redirect") | .id' <<<"${API_LIST_RULESETS_ACCOUNT}")"
 if [[ -n "${RULESET_ID}" ]]; then
+    curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X DELETE -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+    exit 1
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X GET -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
-    echo "DEBUG: ${RESPONSE}"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. GET https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID failed."
         exit 1
     fi
     DELETE_RULE_ID="$(jq -r '.result.rules[] | select(.action_parameters.from_list.name == "'"${REDIRECT_LIST_UUID_SHORT}"'") | .id' <<<"${RESPONSE}")"
-    echo "DEBUG: ${DELETE_RULE_ID}"
     RESPONSE_CLEANED=$(jq -c '.result.rules | map(select(.id != "'"${DELETE_RULE_ID}"'")) | map({expression, description, action, action_parameters})' <<<"${RESPONSE}")
-    echo "DEBUG: ${RESPONSE_CLEANED}"
     JSON_REDIRECT_RULESET_UPDATE="$(jq -c --argjson responseCleaned "${RESPONSE_CLEANED}" '.rules+=$responseCleaned' <<<"${JSON_REDIRECT_RULESET_CREATE}")"
-    echo "DEBUG: ${JSON_REDIRECT_RULESET_UPDATE}"
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET_UPDATE}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID failed."
@@ -402,8 +400,6 @@ else
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET_CREATE}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets failed."
-        echo "DEBUG:"
-        echo "${RESPONSE}"
         exit 1
     fi
     echo "Cloudflare API Request successful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets succeeded."
