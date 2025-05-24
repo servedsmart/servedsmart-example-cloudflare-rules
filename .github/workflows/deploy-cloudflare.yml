@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Dependencies
-        run: sudo apt install -y yq
+        run: sudo apt-get install -y yq
 
       - name: Deploy
         env:
