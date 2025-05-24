@@ -163,7 +163,7 @@ JSON_REQUEST_FULL="$(
   "phase": "http_response_headers_transform",
   "rules": [
     {
-      "expression": "(true)",
+      "expression": "true",
       "description": "Secure HTTP Response Headers",
       "action": "rewrite",
       "action_parameters": {
@@ -248,11 +248,7 @@ fi
 
 RULESET_ID="$(jq -r '.result[] | select(.phase == "http_response_headers_transform") | .id' <<<"${API_LIST_RULESETS}")"
 if [[ -n "${RULESET_ID}" ]]; then
-    DEBUG="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_UPDATE}")"
-    echo "${DEBUG}"
-    jq -en ".success" <<<"${DEBUG}"
+    curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_UPDATE}" | jq -e ".success" >/dev/null 2>&1
 else
-    DEBUG="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_CREATE}")"
-    echo "${DEBUG}"
-    jq -en ".success" <<<"${DEBUG}"
+    curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_CREATE}" | jq -e ".success" >/dev/null 2>&1
 fi
