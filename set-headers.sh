@@ -163,9 +163,12 @@ done
 EXPRESSION_CMS="(starts_with(http.request.uri.path, \\\"/edit-cms\\\"))"
 OUTPUT_DIR="${SCRIPT_DIR}"/external
 git clone -b main "${REPO_URL_EXTERNAL}" "${OUTPUT_DIR}"
+DEFAULT_LOCALE="$(tomlq -cr ".defaultContentLanguage" "${OUTPUT_DIR}"/config/_default/hugo.toml)"
 for file in "${OUTPUT_DIR}"/config/_default/languages.*.toml; do
     LOCALE="$(basename "${file}" .toml | cut -d. -f2)"
-    EXPRESSION_CMS+=" or (starts_with(http.request.uri.path, \\\"/${LOCALE}/edit-cms\\\"))"
+    if [[ "${LOCALE}" != "${DEFAULT_LOCALE}" ]]; then
+        EXPRESSION_CMS+=" or (starts_with(http.request.uri.path, \\\"/${LOCALE}/edit-cms\\\"))"
+    fi
 done
 ## https://developers.cloudflare.com/ruleset-engine/rulesets-api/create/
 JSON_REQUEST_FULL="$(
