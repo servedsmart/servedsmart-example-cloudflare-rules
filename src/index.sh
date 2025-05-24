@@ -382,10 +382,11 @@ RULESET_ID="$(jq -r '.result[] | select(.phase == "http_request_redirect") | .id
 if [[ -n "${RULESET_ID}" ]]; then
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X GET -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
     # match uuid in one of the rules and update that
-    if ! jq -e ".success" <<<"${API_LIST_RULES_LIST_ACCOUNT}" >/dev/null 2>&1; then
+    if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. GET https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID failed."
         exit 1
     fi
+    echo "DEBUG: ${RESPONSE}"
     DELETE_RULE_ID="$(jq -r '.result.rules[] | select(.action_parameters.from_list.name == "'"${REDIRECT_LIST_UUID_SHORT}"'") | .id' <<<"${RESPONSE}")"
     echo "DEBUG: ${DELETE_RULE_ID}"
     RESPONSE_CLEANED=$(jq -c '.result.rules | map(select(.id != "'"${DELETE_RULE_ID}"'")) | map({expression, description, action, action_parameters})' <<<"${RESPONSE}")
