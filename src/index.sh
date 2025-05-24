@@ -378,7 +378,7 @@ if ! jq -e ".success" <<<"${API_LIST_RULESETS_ACCOUNT}" >/dev/null 2>&1; then
     echo "ERROR: Cloudflare API Request unsuccessful. GET https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets failed."
     exit 1
 fi
-RULESET_ID="$(jq -r '.result[] | select(.phase == "http_request_redirect") | select(.name == "${UUID_SHORT}") | .id' <<<"${API_LIST_RULESETS_ACCOUNT}")"
+RULESET_ID="$(jq -r '.result[] | select(.phase == "http_request_redirect") | select(.name == "'"${UUID_SHORT}"'") | .id' <<<"${API_LIST_RULESETS_ACCOUNT}")"
 if [[ -n "${RULESET_ID}" ]]; then
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
