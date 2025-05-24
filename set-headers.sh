@@ -160,12 +160,12 @@ for ((i = 0; i < RULES_PP_DEFAULT_LENGTH; i++)); do
     PP_DEFAULT+="${RULES_PP_DEFAULT[${i}]}"
 done
 ## Generate EXPRESSION_CMS with languages used in REPO_URL_EXTERNAL
-EXPRESSION_CMS="(starts_with(http.request.uri.path, \"/edit-cms\"))"
+EXPRESSION_CMS="(starts_with(http.request.uri.path, \\\"/edit-cms\\\"))"
 OUTPUT_DIR="${SCRIPT_DIR}"/external
 git clone -b main "${REPO_URL_EXTERNAL}" "${OUTPUT_DIR}"
 for file in "${OUTPUT_DIR}"/config/_default/languages.*.toml; do
     LOCALE="$(basename "${file}" .toml | cut -d. -f2)"
-    EXPRESSION_CMS+=" or (starts_with(http.request.uri.path, \"/${LOCALE}/edit-cms\"))"
+    EXPRESSION_CMS+=" or (starts_with(http.request.uri.path, \\\"/${LOCALE}/edit-cms\\\"))"
 done
 ## https://developers.cloudflare.com/ruleset-engine/rulesets-api/create/
 JSON_REQUEST_FULL="$(
