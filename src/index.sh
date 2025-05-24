@@ -300,7 +300,7 @@ for ((i = 0; i < REDIRECT_DOMAINS_LENGTH; i++)); do
   {
     "redirect": {
       "source_url": "${REDIRECT_DOMAINS[${i}]}",
-      "target_url": "https://${TARGET_DOMAIN}/\${2}",
+      "target_url": "https://${TARGET_DOMAIN}/\${1}",
       "status_code": 301,
       "preserve_query_string": true
     }
