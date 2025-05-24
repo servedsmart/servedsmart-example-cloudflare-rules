@@ -387,8 +387,11 @@ if [[ -n "${RULESET_ID}" ]]; then
         exit 1
     fi
     DELETE_RULE_ID="$(jq -r '.result.rules[] | select(.action_parameters.from_list.name == "'"${REDIRECT_LIST_UUID_SHORT}"'") | .id' <<<"${RESPONSE}")"
+    echo "DEBUG: ${DELETE_RULE_ID}"
     RESPONSE_CLEANED=$(jq -c '.result.rules | map(select(.id != "'"${DELETE_RULE_ID}"'")) | map({expression, description, action, action_parameters})' <<<"${RESPONSE}")
+    echo "DEBUG: ${RESPONSE_CLEANED}"
     JSON_REDIRECT_RULESET_UPDATE="$(jq -c --argjson responseCleaned "${RESPONSE_CLEANED}" '.rules+=$responseCleaned' <<<"${JSON_REDIRECT_RULESET_CREATE}")"
+    echo "DEBUG: ${JSON_REDIRECT_RULESET_UPDATE}"
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET_UPDATE}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID failed."
