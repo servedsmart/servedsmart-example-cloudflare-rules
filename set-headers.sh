@@ -240,7 +240,7 @@ EOF
 JSON_REQUEST_UPDATE="$(jq -cn '{ rules: inputs.rules }' <<<"${JSON_REQUEST_FULL}")"
 JSON_REQUEST_CREATE="$(jq -c <<<"${JSON_REQUEST_FULL}")"
 
-API_LIST_RULESETS="$(curl https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X GET -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
+API_LIST_RULESETS="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X GET -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
 if ! jq -e ".success" <<<"${API_LIST_RULESETS}" >/dev/null 2>&1; then
     echo "ERROR: Cloudflare API Request unsuccessful."
     exit 1
@@ -248,7 +248,11 @@ fi
 
 RULESET_ID="$(jq -r '.result[] | select(.phase == "http_response_headers_transform") | .id' <<<"${API_LIST_RULESETS}")"
 if [[ -n "${RULESET_ID}" ]]; then
-    curl https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_UPDATE}" | jq -e ".success"
+    DEBUG="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_UPDATE}")"
+    echo "${DEBUG}"
+    jq -en ".success" <<<"${DEBUG}"
 else
-    curl https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_CREATE}" | jq -e ".success"
+    DEBUG="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REQUEST_CREATE}")"
+    echo "${DEBUG}"
+    jq -en ".success" <<<"${DEBUG}"
 fi
