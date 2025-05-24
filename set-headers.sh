@@ -16,8 +16,8 @@ set -e
 ## https://content-security-policy.com/
 RULES_CSP_DEFAULT=(
     "default-src 'none'"
-    "script-src 'self'"
-    "style-src 'self'"
+    "script-src 'self' 'unsafe-inline'"
+    "style-src 'self' 'unsafe-inline'"
     "img-src 'self' blob: data:"
     "connect-src 'self'"
     "font-src 'self'"
