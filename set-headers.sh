@@ -40,11 +40,12 @@ RULES_CSP_DEFAULT=(
 RULES_CSP_CMS=(
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com"
     "font-src 'self' https://fonts.gstatic.com"
-    "img-src 'self' blob: data: https://*.githubusercontent.com https://images.pexels.com https://pixabay.com https://images.unsplash.com"
-    "media-src blob:; frame-src blob: https://www.youtube-nocookie.com"
+    "img-src 'self' blob: data: https://*.githubusercontent.com"
+    "media-src blob:"
+    "frame-src blob: https://www.youtube-nocookie.com"
     "child-src blob: https://www.youtube-nocookie.com"
     "script-src 'self' https://unpkg.com"
-    "connect-src 'self' blob: data: https://unpkg.com https://api.github.com https://www.githubstatus.com https://images.pexels.com https://api.pexels.com https://pixabay.com https://images.unsplash.com https://api.unsplash.com"
+    "connect-src 'self' blob: data: https://unpkg.com https://api.github.com https://www.githubstatus.com"
     "upgrade-insecure-requests"
     "block-all-mixed-content"
 )
