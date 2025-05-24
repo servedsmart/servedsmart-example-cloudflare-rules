@@ -272,12 +272,14 @@ if [[ -n "${RULESET_ID}" ]]; then
         echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets/RULESET_ID failed."
         exit 1
     fi
+    echo "Cloudflare API Request successful. PUT https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets/RULESET_ID succeeded."
 else
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_RESPONSE_HEADER_TRANSFORM_RULESET}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. POST https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets failed."
         exit 1
     fi
+    echo "Cloudflare API Request successful. POST https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets succeeded."
 fi
 
 # Redirect Rules
@@ -345,6 +347,7 @@ if [[ -z "${RULES_LIST_ID}" ]]; then
         exit 1
     fi
     RULES_LIST_ID="$(jq -r '.result[] | .id' <<<"${RESPONSE}")"
+    echo "Cloudflare API Request successful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists succeeded."
 fi
 ## Update list
 RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rules/lists/"${RULES_LIST_ID}"/items -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_LIST_UPDATE}")"
@@ -352,6 +355,7 @@ if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
     echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists/RULES_LIST_ID/items failed."
     exit 1
 fi
+echo "Cloudflare API Request successful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists/RULES_LIST_ID/items succeeded."
 OPERATION_ID="$(jq -r '.result[] | .operation_id' <<<"${RESPONSE}")"
 for i in {1..11}; do
     if [[ "${i}" -eq 11 ]]; then
@@ -361,6 +365,7 @@ for i in {1..11}; do
     sleep 10
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rules/lists/bulk_operations/"${OPERATION_ID}" -X GET -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
     if [[ "$(jq -r '.result[] | .status' <<<"${RESPONSE}")" == "completed" ]]; then
+        echo "Cloudflare API Bulk Operation successful. Initialized by PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists/RULES_LIST_ID/items."
         break
     else
         echo "WARNING: Cloudflare API Bulk Operation not completed. Initialized by PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rules/lists/RULES_LIST_ID/items."
@@ -380,10 +385,12 @@ if [[ -n "${RULESET_ID}" ]]; then
         echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID failed."
         exit 1
     fi
+    echo "Cloudflare API Request successful. PUT https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets/RULESET_ID succeeded."
 else
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/accounts/"${CLOUDFLARE_ACCOUNT_ID}"/rulesets -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets failed."
         exit 1
     fi
+    echo "Cloudflare API Request successful. POST https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/rulesets succeeded."
 fi
