@@ -299,10 +299,10 @@ JSON_REDIRECT_RULESET="$(
       "action_parameters": {
         "from_value": {
           "target_url": {
-            "expression": "concat(\"https://${TARGET_DOMAIN}\", http.request.uri.path)",
-            "status_code": 301,
-            "preserve_query_string": true
+            "expression": "concat(\"https://${TARGET_DOMAIN}\", http.request.uri.path)"
           }
+          "status_code": 301,
+          "preserve_query_string": true
         }
       }
     }
@@ -316,7 +316,6 @@ if [[ -n "${RULESET_ID}" ]]; then
     RESPONSE="$(curl -s https://api.cloudflare.com/client/v4/zones/"${CLOUDFLARE_ZONE_ID}"/rulesets/"${RULESET_ID}" -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" --json "${JSON_REDIRECT_RULESET}")"
     if ! jq -e ".success" <<<"${RESPONSE}" >/dev/null 2>&1; then
         echo "ERROR: Cloudflare API Request unsuccessful. PUT https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets/RULESET_ID failed."
-        echo "DEBUG: ${RESPONSE}"
         exit 1
     fi
     echo "Cloudflare API Request successful. PUT https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/rulesets/RULESET_ID succeeded."
